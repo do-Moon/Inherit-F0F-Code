@@ -36,56 +36,56 @@ E12FFF1E  bx lr
 ```
 
 ### 解説
-全てを解説すると長くなるので簡単に書いていきます。
+全てを詳しく解説すると長くなるので簡単に書いていきます。
 
-ldr r0, [pc, #0x24]
+ldr r0, [pc, #0x24] 
 [pc, #0x24]の演算結果をr0に格納(.word 0x01E81000)
 
-b #0xc
+b #0xc 
 mov r12, pcからスタート
 
-str r1, [r0, #0xc]
+str r1, [r0, #0xc] 
 .path_dataで処理されたr1の値を[r0, #0xc]先に格納(.word 0x01E8100C)
 
-bx lr
+bx lr 
 lrに格納されているアドレスへと分岐する(プログラム終了)
 
-mov r12, pc
+mov r12, pc 
 pcレジスタの値をr12に格納(これにより分岐先からF0Fへ帰還できる)
 
-ldr r1, [r0]
+ldr r1, [r0] 
 [r0](01E81000)の値をr1に格納(.word 0x00000000)
 
-cmp r1, #0
+cmp r1, #0 
 r1と#0を比較する(これにより、もし01E81000の値が0と↓)
 
-beq #0xc
+beq #0xc 
 (等しければ、bx lrに分岐し安全にプログラムを終了する)
 
-bx path_data
+bx path_data 
 .path_data(01E81000)へ分岐する
 
-b #0xffffffe4
+b #0xffffffe4 
 .path_dataで処理された値を01E8100Cに書き込むためにstr r1, [r0, #0xc]へ分岐
 
-bx lr
+bx lr 
 プログラム終了
 
-.word 0x01E81000
+.word 0x01E81000 
 ldr r0, [pc, #0x24]のpc+0x24した値
 
 #### .path_data(01E81000)からの処理
-mov r1, #1
+mov r1, #1 
 #1をr1に格納
 
-add 12, 12, #0xc
-mov r12, pcで格納されたr12をF0F内に記述したb #0xffffffe4までの距離(#0xc)をr12に格納
-※ここが重要
-F0Fに戻るために利用するr12の値はmov r12, pcのアドレスからb #0xffffffe4までの距離なので、
-mov r12, pc ~ b #0xffffffe4 までを 32bitを頭に入れておき、0x14に-0x8をする
-この計算結果は0xcになり、実質cmp r1, #0から数えた結果になる
+add 12, 12, #0xc 
+mov r12, pcで格納されたr12をF0F内に記述したb #0xffffffe4までの距離(#0xc)をr12に格納  
+※ここが重要  
+F0Fに戻るために利用するr12の値はmov r12, pcのアドレスからb #0xffffffe4までの距離なので、  
+mov r12, pc ~ b #0xffffffe4 までを 32bitを頭に入れておき、0x14に-0x8をする  
+この計算結果は0xcになり、実質cmp r1, #0から数えた結果になる  
 
-mov pc, 12
+mov pc, 12 
 r12をpcに格納し、b #0xffffffe4へ帰還(分岐)する
 
 ### これをコード化し、一度ビルド(実行)する
@@ -103,7 +103,7 @@ E1A0F00C 00000000
 ```
 
 #### build結果
-.build_data
-.word 0x00000001(01E8100Cに1が書き込まれていれば成功)
+.build_data 
+.word 0x00000001(01E8100Cに1が書き込まれていれば成功)    
 
 難しく感じて慣れれば余裕なので考えて楽しんでF0F継承コードを組み立てていってください！
